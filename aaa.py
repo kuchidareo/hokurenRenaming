@@ -11,6 +11,7 @@ from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
 from kivy.clock import Clock
 
+
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
@@ -29,7 +30,7 @@ LabelBase.register(DEFAULT_FONT, "ipaexg.ttf")
 date_today_str = datetime.date.today().strftime('%Y%m%d')
 
 # 監視対象ディレクトリを指定する
-target_dir = 'C:\\Users\\kuchida\\Pictures\\Wireless Transmitter Utility\\D810 2019212\\DCIM\\197ND810'
+target_dir = 'C:\\Users\\kuchida\\Pictures\\Wireless Transmitter Utility\\D850 2032824\\DCIM\\100ND850'
 
 hokuren_dir = 'C:\\Users\\kuchida\\Desktop\\hokuren'
 h_today_dir = hokuren_dir + '\\' + date_today_str
@@ -206,6 +207,7 @@ class TextWidget(Widget):
         load_carcass_list = numpy.loadtxt(fname=load_filepath,skiprows=0,delimiter=",",dtype="U20")[:,0:2]
         for line in load_carcass_list:
             carcass_list.append([line[0],line[1]])
+        print(carcass_list)
         self.ids.barcode_input.focus = True
 
         
