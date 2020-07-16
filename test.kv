@@ -24,10 +24,17 @@
                 id: mirror_image
                 source:root.mirror_image_src
                 allow_stretch: True
-            Image:
-                id: pixel_image
-                source:root.pixel_image_src
-                allow_stretch: True
+            BoxLayout:
+                Image:
+                    size_hint_x: 0.7
+                    id: barcode_image
+                    source:root.pixel_image_src
+                    allow_stretch: True
+                Image:
+                    size_hint_x: 0.3
+                    id: pixel_image
+                    source:root.barcode_image_src
+                    allow_stretch: True
         BoxLayout:
             size_hint_y: 0.1
             Button:

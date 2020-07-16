@@ -93,16 +93,32 @@ global i_p
 i_p = 0
 
 
-
+pixel_image_path_list = []
+barcode_image_path_list = []
 
 mirror_image_path_list = glob.glob(mirror_dir+'\\*.jpg')
 mirror_image_path_list.sort()
 
-pixel_image_path_list = glob.glob(pixel_dir+'\\*.jpg')
-pixel_image_path_list.sort()
-
+smartphone_image_path_list = glob.glob(pixel_dir+'\\*.jpg')
+smartphone_image_path_list.sort()
+for smartphone_image_path1 in smartphone_image_path_list:
+    if '_1.jpg' in smartphone_image_path1:
+        count = 0
+        barcode_image_path_list.append(smartphone_image_path1)
+        body = smartphone_image_path1[-10:-6]
+        for smartphone_image_path2 in smartphone_image_path_list:
+            if body == smartphone_image_path2[-10:-6]:
+                count += 1
+        if count == 1:
+            pixel_image_path_list.append('null')
+        elif count >= 2:
+            for smartphone_image_path3 in smartphone_image_path_list:
+                if body == smartphone_image_path3[-10:-6] and '_2.jpg' in smartphone_image_path3:
+                    pixel_image_path_list.append(smartphone_image_path3)
+                
 print(mirror_image_path_list)
 print(pixel_image_path_list)
+print(barcode_image_path_list)
 
 barcode_list = []
 body_number_list = []
@@ -117,7 +133,7 @@ class LoadDialog(FloatLayout):
 
 class TextWidget(Widget):
     global carcass_list
-    carcass_order = StringProperty()    # プロパティの追加
+    carcass_order = StringProperty()  
     body_number = StringProperty()
     body_number_2 = StringProperty()
     body_number_3 = StringProperty()
@@ -125,6 +141,8 @@ class TextWidget(Widget):
     csv_input = StringProperty()
     mirror_image = ObjectProperty(None)
     mirror_image_src = StringProperty('')
+    barcode_image = ObjectProperty(None)
+    barcode_image_src = StringProperty('')
     pixel_image = ObjectProperty(None)
     pixel_image_src = StringProperty('')
     mirror_name = StringProperty()
@@ -142,6 +160,7 @@ class TextWidget(Widget):
         self.carcass_order = '出場順:    '
         self.barcode = ''
         self.mirror_image_src = 'black.png'
+        self.barcode_image_src = 'black.png'
         self.pixel_image_src = 'black.png'
         self.csv_input = 'csv'
         self.mirror_name = ''
@@ -162,13 +181,14 @@ class TextWidget(Widget):
 
     def update(self, dt):
         self.ids.mirror_image.reload()
+        self.ids.barcode_image.reload()
         self.ids.pixel_image.reload()
 
 
     def okClicked(self):        # ボタンをクリック時
         global i_m
         global i_p
-        if i_m < len(mirror_image_path_list) and i_p < len(pixel_image_path_list):
+        if i_m < len(mirror_image_path_list) and i_p < len(barcode_image_path_list):
             if not mirror_image_path_list[i_m] == mirror_dir+'\\'+self.carcass_order[4:]+'_'+self.body_number[5:]+'.jpg':
                 if not '見つかりません' in self.carcass_order:
                     shutil.copyfile(mirror_image_path_list[i_m],complete_dir+'\\'+self.carcass_order[4:]+'_'+self.body_number[5:]+'.jpg')
@@ -183,16 +203,22 @@ class TextWidget(Widget):
             self.next_image_set()
 
     def next_image_set(self):
-        if i_m < len(mirror_image_path_list) and i_p < len(pixel_image_path_list):
+        if i_m < len(mirror_image_path_list) and i_p < len(barcode_image_path_list):
             self.resize_image(mirror_image_path_list[i_m],'mirror')
+            self.resize_image(barcode_image_path_list[i_p],'barcode')
             self.resize_image(pixel_image_path_list[i_p],'pixel')
             ##self.mirror_image_src = resize_image_dir + '\\' + mirror_image_path_list[i_m]
             ##self.pixel_image_src = resize_image_dir + '\\' + pixel_image_path_list[i_p]
             self.mirror_name = mirror_image_path_list[i_m] + '\n\n' + str(i_m+1) + '/' + str(len(mirror_image_path_list))
+            self.barcode_name = barcode_image_path_list[i_p] + '\n\n' + str(i_p+1) + '/' + str(len(barcode_image_path_list))
             self.pixel_name = pixel_image_path_list[i_p] + '\n\n' + str(i_p+1) + '/' + str(len(pixel_image_path_list))
-            self.body_number = '枝肉番号:' + pixel_image_path_list[i_p][-8:-4]
+            print("----------")
+            print(self.barcode_name)
+            print(self.pixel_name)
+            print("----------")
+            self.body_number = '枝肉番号:' + barcode_image_path_list[i_p][-10:-6]
 
-            body_number = pixel_image_path_list[i_p][-8:-4]
+            body_number = barcode_image_path_list[i_p][-10:-6]
             if body_number in [d[1] for d in carcass_list]:
                 self.carcass_order =  '出場順:' + str(carcass_list[[d[1] for d in carcass_list].index(body_number)][0])
             else:
@@ -200,24 +226,31 @@ class TextWidget(Widget):
         if i_m >= len(mirror_image_path_list):
             self.mirror_image_src = 'black.png'
             self.mirror_name = '写真が見つかりません'
-        if i_p >= len(pixel_image_path_list):
+        if i_p >= len(barcode_image_path_list):
+            self.barcode_image_src = 'black.png'
+            self.barcode_name = '写真が見つかりません'
             self.pixel_image_src = 'black.png'
             self.pixel_name = '写真が見つかりません'
         
     def resize_image(self,src,sort):
-        filename = src[src.rfind('\\')+1:]
-        filename = filename[:filename.rfind('.')]
-        if not os.path.exists(resize_image_dir +'\\'+ filename + '.jpg'):
-            img = Image.open(src)
-            img = img.resize((int(img.width / 4), int(img.height / 4)))
-            img = img.transpose(Image.ROTATE_180)
-            img = ImageOps.mirror(img)
-            img.save(resize_image_dir +'\\'+ filename + '.jpg')
-        if sort == 'mirror':
-            self.mirror_image_src = resize_image_dir +'\\'+ filename + '.jpg'
-        elif sort == 'pixel':
-            self.pixel_image_src = resize_image_dir +'\\'+ filename + '.jpg'
-    
+        if sort == 'pixel' and src == 'null':
+            self.pixel_image_src = self.barcode_image_src
+        else:
+            filename = src[src.rfind('\\')+1:]
+            filename = filename[:filename.rfind('.')]
+            if not os.path.exists(resize_image_dir +'\\'+ filename + '.jpg'):
+                img = Image.open(src)
+                img = img.resize((int(img.width / 4), int(img.height / 4)))
+                img = img.transpose(Image.ROTATE_180)
+                img = ImageOps.mirror(img)
+                img.save(resize_image_dir +'\\'+ filename + '.jpg')
+            if sort == 'mirror':
+                self.mirror_image_src = resize_image_dir +'\\'+ filename + '.jpg'
+            elif sort == 'barcode':
+                self.barcode_image_src = resize_image_dir +'\\'+ filename + '.jpg'
+            elif sort == 'pixel':
+                self.pixel_image_src = resize_image_dir +'\\'+ filename + '.jpg'
+
     def rotate_mirror_image(self,src):
         img = Image.open(src)
         img = img.transpose(Image.ROTATE_270)
@@ -243,7 +276,7 @@ class TextWidget(Widget):
 
     def p_fClicked(self):
         global i_p
-        if i_p < len(pixel_image_path_list)-1:
+        if i_p < len(barcode_image_path_list)-1:
             i_p +=1
             self.next_image_set()
 
@@ -307,21 +340,26 @@ def resize_mirror_image(path, a):
             img = ImageOps.mirror(img)
             img.save(resize_image_dir +'\\'+ filename + '.jpg')
 
-def rotate_pixel_image(path, a):
+def rotate_smartphone_image(path, a):
     for src in path:
-        filename = src[src.rfind('\\')+1:]
-        filename = filename[:filename.rfind('.')]
-        if not os.path.exists(resize_image_dir +'\\'+ filename + '.jpg'):
-            img = Image.open(src)
-            img = img.transpose(Image.ROTATE_180)
-            img.save(resize_image_dir +'\\'+ filename + '.jpg')
+        if src == 'null':
+            pass
+        else:
+            filename = src[src.rfind('\\')+1:]
+            filename = filename[:filename.rfind('.')]
+            if not os.path.exists(resize_image_dir +'\\'+ filename + '.jpg'):
+                img = Image.open(src)
+                # img = img.transpose(Image.ROTATE_180)
+                img.save(resize_image_dir +'\\'+ filename + '.jpg')
 
 
 if __name__ == '__main__':
     resize_thread = threading.Thread(target=resize_mirror_image, args=(mirror_image_path_list,0))
     resize_thread.start()
-    rotate_thread = threading.Thread(target=rotate_pixel_image, args=(pixel_image_path_list,0))
-    rotate_thread.start()
+    rotate_thread_barcode = threading.Thread(target=rotate_smartphone_image, args=(barcode_image_path_list,0))
+    rotate_thread_barcode.start()
+    rotate_thread_pixel = threading.Thread(target=rotate_smartphone_image, args=(pixel_image_path_list,0))
+    rotate_thread_pixel.start()
     TestApp().run()
     
 
