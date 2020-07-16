@@ -55,7 +55,7 @@ h_today_dir = hokuren_dir + '\\' + date_today_str
 mirror_dir = h_today_dir + '\\ミラー型撮影装置'
 pixel_dir = h_today_dir + '\\スマホ台形補正'
 complete_dir = h_today_dir + '\\mirror'
-surface_dir = h_today_dir + '\\枝肉概観'
+surface_dir = h_today_dir + '\\枝肉外観'
 diffect_dir = h_today_dir + '\\瑕疵'
 resize_image_dir = h_today_dir + '\\resize'
 
@@ -261,7 +261,7 @@ class TextWidget(Widget):
         self.dismiss_popup()
         load_carcass_list = numpy.loadtxt(fname=load_filepath,skiprows=0,delimiter=",",dtype="U20")[:,0:2]
         for line in load_carcass_list:
-            line[0] = line[0].zfill(4)
+            line[0] = line[0].zfill(3)
             line[1] = line[1].zfill(4)
             carcass_list.append([line[0],line[1]])
         self.csv_input = 'read'

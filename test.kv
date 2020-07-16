@@ -1,80 +1,89 @@
 <TextWidget>:
-    image: image
-
     BoxLayout:
         orientation: 'vertical'
         size: root.size
 
         BoxLayout:
-            size_hint_y: 0.2
+            size_hint_y: 0.1
             Label:
-                size_hint_x: 0.25
+                id: mirror_name
+                text_size: self.size
+                halign: 'left'
+                font_size: 20
+                text:root.mirror_name
+            Label:
+                id: pixel_name
+                text_size: self.size
+                halign: 'left'
+                font_size: 20
+                text:root.pixel_name
+
+        BoxLayout:
+            size_hint_y: 0.7
+            Image:
+                id: mirror_image
+                source:root.mirror_image_src
+                allow_stretch: True
+            Image:
+                id: pixel_image
+                source:root.pixel_image_src
+                allow_stretch: True
+        BoxLayout:
+            size_hint_y: 0.1
+            Button:
+                id: mirror_image_back
+                text: "<"
+                font_size: 15
+                on_release: root.m_bClicked()
+            Button:
+                id: mirror_image_forward
+                text: ">"
+                font_size: 15
+                on_release: root.m_fClicked()
+
+            Button:
+                id: pixel_image_back
+                text: "<"
+                font_size: 15
+                on_release: root.p_bClicked()
+            Button:
+                id: pixel_image_forward
+                text: ">"
+                font_size: 15
+                on_release: root.p_fClicked()
+
+
+        BoxLayout:
+            size_hint_y: 0.1
+            Label:
                 id: carcass_order
                 font_size: 30
                 text: root.carcass_order
             Label:
-                size_hint_x: 0.25
                 id: body_number
                 font_size: 30
                 text: root.body_number
-            Label:
-                size_hint_x: 0
-                id: barcode
-                font_size: 0.0
-                text: root.barcode
-            Label:
-                size_hint_x: 0
-                id: filepath
-                font_size: 0
-                text: root.filepath
-
-            Button:
-                size_hint_x: 0.20
-                id: sansyo_button
-                text: 'csv'
-                font_size: 68
-                on_press: root.sansyoClicked()
-
-            TextInput:
-                size_hint_x: 0
-                id: barcode_input
-                focus: False
-                font_size: 10
-                multiline: False
-                on_text_validate: root.barcodeDetected(self.text)
-            TextInput:
-                size_hint_x: 0
-                id: barcode_input_sub
-                focus: False
-                font_size: 10
-                multiline: False
-                on_text_validate: root.barcodeDetectedSub(self.text)
-
-        Image:
-            size_hint_y: 1
-            id: image
-            source:root.image_src
-
-        BoxLayout:
-            size_hint_y: 0.2
             Button:
                 id: ok
                 text: "OK"
-                font_size: 68
+                font_size: 15
                 on_release: root.okClicked()
             Button:
-                id: cancel
-                text: "Cancel"
-                font_size: 68
-                on_release: root.cancelClicked() 
+                id: sansyo_button
+                text: root.csv_input
+                font_size: 15
+                on_press: root.sansyoClicked()
+
+
             
 <LoadDialog>:
     BoxLayout:
         size: root.size
         pos: root.pos
         orientation: "vertical"
-        FileChooserIconView:
+        FileChooserListView:
             id: filechooser
+            path: root.desktop_dir
  
         BoxLayout:
             size_hint_y: None
