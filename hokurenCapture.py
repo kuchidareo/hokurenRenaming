@@ -340,7 +340,7 @@ def resize_mirror_image(path, a):
             img = ImageOps.mirror(img)
             img.save(resize_image_dir +'\\'+ filename + '.jpg')
 
-def rotate_smartphone_image(path, a):
+def resize_and_rotate_smartphone_image(path, a):
     for src in path:
         if src == 'null':
             pass
@@ -349,16 +349,15 @@ def rotate_smartphone_image(path, a):
             filename = filename[:filename.rfind('.')]
             if not os.path.exists(resize_image_dir +'\\'+ filename + '.jpg'):
                 img = Image.open(src)
-                # img = img.transpose(Image.ROTATE_180)
+                img = img.transpose(Image.ROTATE_90)
                 img.save(resize_image_dir +'\\'+ filename + '.jpg')
-
 
 if __name__ == '__main__':
     resize_thread = threading.Thread(target=resize_mirror_image, args=(mirror_image_path_list,0))
     resize_thread.start()
-    rotate_thread_barcode = threading.Thread(target=rotate_smartphone_image, args=(barcode_image_path_list,0))
+    rotate_thread_barcode = threading.Thread(target=resize_and_rotate_smartphone_image, args=(barcode_image_path_list,0))
     rotate_thread_barcode.start()
-    rotate_thread_pixel = threading.Thread(target=rotate_smartphone_image, args=(pixel_image_path_list,0))
+    rotate_thread_pixel = threading.Thread(target=resize_and_rotate_smartphone_image, args=(pixel_image_path_list,0))
     rotate_thread_pixel.start()
     TestApp().run()
     
