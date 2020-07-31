@@ -349,6 +349,7 @@ def resize_and_rotate_smartphone_image(path, a):
             filename = filename[:filename.rfind('.')]
             if not os.path.exists(resize_image_dir +'\\'+ filename + '.jpg'):
                 img = Image.open(src)
+                img = img.resize((int(img.width / 2), int(img.height / 2)))
                 img = img.transpose(Image.ROTATE_90)
                 img.save(resize_image_dir +'\\'+ filename + '.jpg')
 
