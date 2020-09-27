@@ -12,7 +12,6 @@ from kivy.uix.popup import Popup
 from kivy.clock import Clock
 from kivy.core.window import Window
 
-
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
@@ -34,20 +33,8 @@ LabelBase.register(DEFAULT_FONT, "ipaexg.ttf")
 
 date_today_str = datetime.date.today().strftime('%Y%m%d')
 
-ini = configparser.ConfigParser()
-ini.read('./config.ini', 'UTF-8')
-print(ini['info']['target directory'])
-print(ini['info']['length of barcode'])
-print(ini['info']['position of body number'])
-
 global length_of_barcode
 global position_of_body_number
-
-length_of_barcode = int(ini['info']['length of barcode'])
-position_of_body_number = int(ini['info']['position of body number'])
-
-# 監視対象ディレクトリを指定する
-target_dir = ini['info']['target directory']
 
 hokuren_dir = os.getenv("HOMEDRIVE") + os.getenv("HOMEPATH") + '\\Desktop\\hokuren'
 
@@ -58,7 +45,6 @@ complete_dir = h_today_dir + '\\mirror'
 surface_dir = h_today_dir + '\\枝肉外観'
 diffect_dir = h_today_dir + '\\瑕疵'
 resize_image_dir = h_today_dir + '\\resize'
-
 
 
 if(not os.path.exists(hokuren_dir)):
@@ -78,14 +64,6 @@ if(not os.path.exists(diffect_dir)):
 if(not os.path.exists(complete_dir)):
     os.mkdir(complete_dir)
 
-
-'''chikudai_dir = 'C:\\Users\\kuchida\\Desktop\\chikudai'
-c_today_dir = chikudai_dir + '\\' + date_today_str
-
-if(not os.path.exists(chikudai_dir)):
-    os.mkdir(chikudai_dir)
-if(not os.path.exists(c_today_dir)):
-    os.mkdir(c_today_dir)'''
 
 global i_m
 i_m = 0
@@ -123,6 +101,9 @@ print(barcode_image_path_list)
 barcode_list = []
 body_number_list = []
 carcass_order_list = []
+
+global rename_list
+rename_list = []
 
 
 class LoadDialog(FloatLayout):
@@ -188,14 +169,17 @@ class TextWidget(Widget):
     def okClicked(self):        # ボタンをクリック時
         global i_m
         global i_p
+        global rename_list
         if i_m < len(mirror_image_path_list) and i_p < len(barcode_image_path_list):
             if not mirror_image_path_list[i_m] == mirror_dir+'\\'+self.carcass_order[4:]+'_'+self.body_number[5:]+'.jpg':
                 if not '見つかりません' in self.carcass_order:
-                    shutil.copyfile(mirror_image_path_list[i_m],complete_dir+'\\'+self.carcass_order[4:]+'_'+self.body_number[5:]+'.jpg')
+                    rename_list.extend([mirror_image_path_list[i_m], complete_dir+'\\'+self.carcass_order[4:]+'_'+self.body_number[5:]+'.jpg'])
+                    ##shutil.copyfile(mirror_image_path_list[i_m],complete_dir+'\\'+self.carcass_order[4:]+'_'+self.body_number[5:]+'.jpg')
                     ##self.rotate_mirror_image(mirror_dir+'\\'+self.carcass_order[4:]+'_'+self.body_number[5:]+'.jpg')
                     print("copyed"  + str(mirror_image_path_list[i_m]) + '  to  ' + str(complete_dir+'\\'+self.carcass_order[4:]+'_'+self.body_number[5:]+'.jpg'))
                 else:
-                    shutil.copyfile(mirror_image_path_list[i_m],complete_dir+'\\'+ date_today_str +'_'+self.body_number[5:]+'.jpg')
+                    rename_list.extend([mirror_image_path_list[i_m], complete_dir+'\\'+date_today_str+'_'+self.body_number[5:]+'.jpg'])
+                    ##shutil.copyfile(mirror_image_path_list[i_m],complete_dir+'\\'+ date_today_str +'_'+self.body_number[5:]+'.jpg')
                     ##self.rotate_mirror_image(mirror_dir+'\\'+self.carcass_order[4:]+'_'+self.body_number[5:]+'.jpg')
                     print("copyed"  + str(mirror_image_path_list[i_m]) + '  to  ' + str(complete_dir+'\\'+date_today_str+'_'+self.body_number[5:]+'.jpg'))
             i_m += 1
@@ -302,18 +286,18 @@ class TextWidget(Widget):
 
         
         
-class TestApp(App):
+class HokurenRenamingApp(App):
     def __init__(self, **kwargs):
-        super(TestApp, self).__init__(**kwargs)
+        super(HokurenRenamingApp, self).__init__(**kwargs)
         self.title = 'greeting'
 
     def build(self):
-        TestApp.widget = TextWidget()
-        return TestApp.widget
+        HokurenRenamingApp.widget = TextWidget()
+        return HokurenRenamingApp.widget
 
 
 def set_image_src(src):
-    TestApp().set_image_src(src)
+    HokurenRenamingApp().set_image_src(src)
 
 def list_reset():
     global display_image_path_list
@@ -360,7 +344,10 @@ if __name__ == '__main__':
     rotate_thread_barcode.start()
     rotate_thread_pixel = threading.Thread(target=resize_and_rotate_smartphone_image, args=(pixel_image_path_list,0))
     rotate_thread_pixel.start()
-    TestApp().run()
+    HokurenRenamingApp().run()
+    
+    for rename_objects in rename_list:
+        shutil.copyfile(rename_objects[0],rename_objects[1])
     
 
 
