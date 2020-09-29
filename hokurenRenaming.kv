@@ -2,89 +2,140 @@
     BoxLayout:
         orientation: 'horizontal'
         size: root.size
-
         BoxLayout:
-            size_hint_x: 0.5
-            Image:
-                size_hint_y: 0.5
-                id: barcode_image
-                source:root.pixel_image_src
-                allow_stretch: True
+            size_hint_x: 0.4
+            orientation: 'vertical'
             BoxLayout:
                 size_hint_y: 0.5
+                orientation: 'vertical'
+                Label:
+                    size_hint_y: 0.1
+                    id: barcode_name
+                    text_size: self.size
+                    halign: 'left'
+                    font_size: 15
+                    text:root.barcode_name
+                Image:
+                    size_hint_y: 0.9
+                    id: barcode_image
+                    source: root.barcode_image_src
+                    allow_stretch: True
+            BoxLayout:
+                size_hint_y: 0.5
+                orientation: 'vertical'
                 Label:
                     size_hint_y: 0.1
                     id: pixel_name
                     text_size: self.size
                     halign: 'left'
-                    font_size: 20
+                    font_size: 15
                     text:root.pixel_name
                 Image:
                     size_hint_y: 0.9
                     id: pixel_image
-                    source:root.barcode_image_src
+                    source: root.pixel_image_src
                     allow_stretch: True
         BoxLayout:
-            size_hint_x: 0.5
-            Label:
-                id: mirror_name
-                text_size: self.size
-                halign: 'left'
-                font_size: 20
-                text:root.mirror_name
-            Image:
-                id: mirror_image
-                source:root.mirror_image_src
-                allow_stretch: True
+            size_hint_x: 0.6
+            orientation: 'vertical'
+            BoxLayout:
+                size_hint_y: 0.8
+                orientation: 'vertical'
+                Label:
+                    size_hint_y: 0.1
+                    id: mirror_name
+                    text_size: self.size
+                    halign: 'left'
+                    font_size: 15
+                    text:root.mirror_name
+                Image:
+                    size_hint_y: 0.9
+                    id: mirror_image
+                    source:root.mirror_image_src
+                    allow_stretch: True
 
             BoxLayout:
                 size_hint_y: 0.1
-                Button:
-                    id: mirror_image_back
-                    text: "<"
-                    font_size: 15
-                    on_release: root.m_bClicked()
-                Button:
-                    id: mirror_image_forward
-                    text: ">"
-                    font_size: 15
-                    on_release: root.m_fClicked()
-
-                Button:
-                    id: pixel_image_back
-                    text: "<"
-                    font_size: 15
-                    on_release: root.p_bClicked()
-                Button:
-                    id: pixel_image_forward
-                    text: ">"
-                    font_size: 15
-                    on_release: root.p_fClicked()
-
-
+                orientation: 'vertical'
                 BoxLayout:
-                    size_hint_y: 0.1
+                    size_hint_y: 0.2
+                    orientation: 'horizontal'
                     Label:
+                        size_hint_x: 0.5
+                        id: pixel_name
+                        text_size: self.size
+                        halign: 'left'
+                        font_size: 15
+                        text: root.button_carcass_label
+                    Label:
+                        size_hint_x: 0.5
+                        id: pixel_name
+                        text_size: self.size
+                        halign: 'left'
+                        font_size: 15
+                        text: root.button_mirror_label
+                BoxLayout:
+                    size_hint_y: 0.8
+                    orientation: 'horizontal'
+                    Button:
+                        id: pixel_image_back
+                        text: "<"
+                        font_size: 15
+                        on_release: root.p_bClicked()
+                    Button:
+                        id: pixel_image_forward
+                        text: ">"
+                        font_size: 15
+                        on_release: root.p_fClicked()
+                    Button:
+                        id: mirror_image_back
+                        text: "<"
+                        font_size: 15
+                        on_release: root.m_bClicked()
+                    Button:
+                        id: mirror_image_forward
+                        text: ">"
+                        font_size: 15
+                        on_release: root.m_fClicked()
+
+            BoxLayout:
+                size_hint_y: 0.1
+                orientation: 'horizontal'
+                BoxLayout:
+                    orientation: 'horizontal'
+                    Label:
+                        size_hint_x: 0.3
+                        id: carcass_order_label
+                        font_size: 15
+                        text: root.carcass_order_label
+                    Label:
+                        size_hint_x: 0.7
                         id: carcass_order
-                        font_size: 30
+                        font_size: 35
                         text: root.carcass_order
+                BoxLayout:
+                    orientation: 'horizontal'
                     Label:
+                        size_hint_x: 0.3
+                        id: body_number_label
+                        font_size: 15
+                        text: root.body_number_label
+                    Label:
+                        size_hint_x: 0.7
                         id: body_number
-                        font_size: 30
+                        font_size: 35
                         text: root.body_number
-                    Button:
-                        id: ok
-                        text: "OK"
-                        font_size: 15
-                        on_release: root.okClicked()
-                    Button:
-                        id: sansyo_button
-                        text: root.csv_input
-                        font_size: 15
-                        on_press: root.sansyoClicked()
-
-
-            
+                Button:
+                    id: sansyo_button
+                    text: root.csv_input
+                    font_size: 15
+                    on_release: root.sansyoClicked()
+                Button:
+                    id: ok
+                    text: "OK"
+                    font_size: 15
+                    on_release: root.okClicked()
+        
 <LoadDialog>:
     BoxLayout:
         size: root.size

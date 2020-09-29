@@ -11,6 +11,7 @@ from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
 from kivy.clock import Clock
 from kivy.core.window import Window
+from kivy.config import Config
 
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
@@ -26,7 +27,10 @@ import numpy
 import configparser
 import shutil
 import glob
+from ctypes import windll
 
+w = windll.user32.GetSystemMetrics(0)  # 横幅
+h = windll.user32.GetSystemMetrics(1)  # 縦幅
 
 resource_add_path("IPAexfont00301")
 LabelBase.register(DEFAULT_FONT, "ipaexg.ttf")
@@ -114,10 +118,10 @@ class LoadDialog(FloatLayout):
 
 class TextWidget(Widget):
     global carcass_list
+    carcass_order_label = StringProperty()  
+    body_number_label = StringProperty()
     carcass_order = StringProperty()  
     body_number = StringProperty()
-    body_number_2 = StringProperty()
-    body_number_3 = StringProperty()
     barcode = StringProperty()
     csv_input = StringProperty()
     mirror_image = ObjectProperty(None)
@@ -127,7 +131,10 @@ class TextWidget(Widget):
     pixel_image = ObjectProperty(None)
     pixel_image_src = StringProperty('')
     mirror_name = StringProperty()
+    barcode_name = StringProperty()
     pixel_name = StringProperty()
+    button_carcass_label = StringProperty()
+    button_mirror_label = StringProperty()
     carcass_list = []
 
 
@@ -135,21 +142,23 @@ class TextWidget(Widget):
         super(TextWidget, self).__init__(**kwargs)
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self) 
         self._keyboard.bind(on_key_down=self._on_keyboard_down) 
-        self.body_number = '枝肉番号:    '
-        self.body_number_2 = ''
-        self.body_number_3 = '' 
-        self.carcass_order = '出場順:    '
+        self.body_number_label = '枝肉番号:'
+        self.carcass_order_label = '出場順:'
+        self.body_number = ''
+        self.carcass_order = ''
         self.barcode = ''
         self.mirror_image_src = 'black.png'
         self.barcode_image_src = 'black.png'
         self.pixel_image_src = 'black.png'
-        self.csv_input = 'csv'
+        self.csv_input = '出場順CSVの読み込み'
         self.mirror_name = ''
+        self.barcode_name = ''
         self.pixel_name = ''
+        self.button_carcass_label = '枝肉番号'
+        self.button_mirror_label = 'ミラー型'
         self.next_image_set()
         Clock.schedule_interval(self.update, 1)
         pass
-
 
     def _keyboard_closed(self): 
         self._keyboard.unbind(on_key_down=self._on_keyboard_down) 
@@ -165,23 +174,22 @@ class TextWidget(Widget):
         self.ids.barcode_image.reload()
         self.ids.pixel_image.reload()
 
-
     def okClicked(self):        # ボタンをクリック時
         global i_m
         global i_p
         global rename_list
         if i_m < len(mirror_image_path_list) and i_p < len(barcode_image_path_list):
-            if not mirror_image_path_list[i_m] == mirror_dir+'\\'+self.carcass_order[4:]+'_'+self.body_number[5:]+'.jpg':
-                if not '見つかりません' in self.carcass_order:
-                    rename_list.extend([mirror_image_path_list[i_m], complete_dir+'\\'+self.carcass_order[4:]+'_'+self.body_number[5:]+'.jpg'])
+            if not mirror_image_path_list[i_m] == mirror_dir+'\\'+self.carcass_order+'_'+self.body_number+'.jpg':
+                if not '-' in self.carcass_order:
+                    rename_list.append([mirror_image_path_list[i_m], complete_dir+'\\'+self.carcass_order+'_'+self.body_number+'.jpg'])
                     ##shutil.copyfile(mirror_image_path_list[i_m],complete_dir+'\\'+self.carcass_order[4:]+'_'+self.body_number[5:]+'.jpg')
                     ##self.rotate_mirror_image(mirror_dir+'\\'+self.carcass_order[4:]+'_'+self.body_number[5:]+'.jpg')
-                    print("copyed"  + str(mirror_image_path_list[i_m]) + '  to  ' + str(complete_dir+'\\'+self.carcass_order[4:]+'_'+self.body_number[5:]+'.jpg'))
+                    print("copyed"  + str(mirror_image_path_list[i_m]) + '  to  ' + str(complete_dir+'\\'+self.carcass_order+'_'+self.body_number+'.jpg'))
                 else:
-                    rename_list.extend([mirror_image_path_list[i_m], complete_dir+'\\'+date_today_str+'_'+self.body_number[5:]+'.jpg'])
+                    rename_list.append([mirror_image_path_list[i_m], complete_dir+'\\'+date_today_str+'_'+self.body_number+'.jpg'])
                     ##shutil.copyfile(mirror_image_path_list[i_m],complete_dir+'\\'+ date_today_str +'_'+self.body_number[5:]+'.jpg')
                     ##self.rotate_mirror_image(mirror_dir+'\\'+self.carcass_order[4:]+'_'+self.body_number[5:]+'.jpg')
-                    print("copyed"  + str(mirror_image_path_list[i_m]) + '  to  ' + str(complete_dir+'\\'+date_today_str+'_'+self.body_number[5:]+'.jpg'))
+                    print("copyed"  + str(mirror_image_path_list[i_m]) + '  to  ' + str(complete_dir+'\\'+date_today_str+'_'+self.body_number+'.jpg'))
             i_m += 1
             i_p += 1
             self.next_image_set()
@@ -193,20 +201,20 @@ class TextWidget(Widget):
             self.resize_image(pixel_image_path_list[i_p],'pixel')
             ##self.mirror_image_src = resize_image_dir + '\\' + mirror_image_path_list[i_m]
             ##self.pixel_image_src = resize_image_dir + '\\' + pixel_image_path_list[i_p]
-            self.mirror_name = mirror_image_path_list[i_m] + '\n\n' + str(i_m+1) + '/' + str(len(mirror_image_path_list))
-            self.barcode_name = barcode_image_path_list[i_p] + '\n\n' + str(i_p+1) + '/' + str(len(barcode_image_path_list))
-            self.pixel_name = pixel_image_path_list[i_p] + '\n\n' + str(i_p+1) + '/' + str(len(pixel_image_path_list))
+            self.mirror_name = mirror_image_path_list[i_m] + '\n' + str(i_m+1) + '/' + str(len(mirror_image_path_list))
+            self.barcode_name = barcode_image_path_list[i_p] + '\n' + str(i_p+1) + '/' + str(len(barcode_image_path_list))
+            self.pixel_name = pixel_image_path_list[i_p] + '\n' + str(i_p+1) + '/' + str(len(pixel_image_path_list))
             print("----------")
             print(self.barcode_name)
             print(self.pixel_name)
             print("----------")
-            self.body_number = '枝肉番号:' + barcode_image_path_list[i_p][-10:-6]
+            self.body_number = barcode_image_path_list[i_p][-10:-6]
 
             body_number = barcode_image_path_list[i_p][-10:-6]
             if body_number in [d[1] for d in carcass_list]:
-                self.carcass_order =  '出場順:' + str(carcass_list[[d[1] for d in carcass_list].index(body_number)][0])
+                self.carcass_order =  str(carcass_list[[d[1] for d in carcass_list].index(body_number)][0])
             else:
-                self.carcass_order = '出場順が見つかりません'
+                self.carcass_order = '-'
         if i_m >= len(mirror_image_path_list):
             self.mirror_image_src = 'black.png'
             self.mirror_name = '写真が見つかりません'
@@ -215,6 +223,7 @@ class TextWidget(Widget):
             self.barcode_name = '写真が見つかりません'
             self.pixel_image_src = 'black.png'
             self.pixel_name = '写真が見つかりません'
+            self.body_number = ''
         
     def resize_image(self,src,sort):
         if sort == 'pixel' and src == 'null':
@@ -289,7 +298,7 @@ class TextWidget(Widget):
 class HokurenRenamingApp(App):
     def __init__(self, **kwargs):
         super(HokurenRenamingApp, self).__init__(**kwargs)
-        self.title = 'greeting'
+        self.title = 'HokurenRenaming'
 
     def build(self):
         HokurenRenamingApp.widget = TextWidget()
@@ -337,6 +346,12 @@ def resize_and_rotate_smartphone_image(path, a):
                 img = img.transpose(Image.ROTATE_90)
                 img.save(resize_image_dir +'\\'+ filename + '.jpg')
 
+def renameFiles():
+    global rename_list
+    print(rename_list)
+    for rename_objects in rename_list:
+        shutil.copyfile(rename_objects[0], rename_objects[1])
+
 if __name__ == '__main__':
     resize_thread = threading.Thread(target=resize_mirror_image, args=(mirror_image_path_list,0))
     resize_thread.start()
@@ -345,9 +360,9 @@ if __name__ == '__main__':
     rotate_thread_pixel = threading.Thread(target=resize_and_rotate_smartphone_image, args=(pixel_image_path_list,0))
     rotate_thread_pixel.start()
     HokurenRenamingApp().run()
-    
-    for rename_objects in rename_list:
-        shutil.copyfile(rename_objects[0],rename_objects[1])
+    renameFiles()
+
+
     
 
 
