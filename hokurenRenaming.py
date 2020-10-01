@@ -290,7 +290,7 @@ class TextWidget(Widget):
             line[0] = line[0].zfill(3)
             line[1] = line[1].zfill(4)
             carcass_list.append([line[0],line[1]])
-        self.csv_input = 'read'
+        self.csv_input = '出場順CSV読み込み済み'
         self.next_image_set()
 
         
