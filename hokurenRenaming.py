@@ -33,7 +33,7 @@ w = windll.user32.GetSystemMetrics(0)  # 横幅
 h = windll.user32.GetSystemMetrics(1)  # 縦幅
 
 resource_add_path("IPAexfont00301")
-LabelBase.register(DEFAULT_FONT, "ipaexg.ttf")
+LabelBase.register(DEFAULT_FONT, "./kivy_setting/ipaexg.ttf")
 
 date_today_str = datetime.date.today().strftime('%Y%m%d')
 
@@ -147,9 +147,9 @@ class TextWidget(Widget):
         self.body_number = ''
         self.carcass_order = ''
         self.barcode = ''
-        self.mirror_image_src = 'black.png'
-        self.barcode_image_src = 'black.png'
-        self.pixel_image_src = 'black.png'
+        self.mirror_image_src = './kivy_setting/black.png'
+        self.barcode_image_src = './kivy_setting/black.png'
+        self.pixel_image_src = './kivy_setting/black.png'
         self.csv_input = '出場順CSVの読み込み'
         self.mirror_name = ''
         self.barcode_name = ''
@@ -216,12 +216,12 @@ class TextWidget(Widget):
             else:
                 self.carcass_order = '-'
         if i_m >= len(mirror_image_path_list):
-            self.mirror_image_src = 'black.png'
+            self.mirror_image_src = './kivy_setting/black.png'
             self.mirror_name = '写真が見つかりません'
         if i_p >= len(barcode_image_path_list):
-            self.barcode_image_src = 'black.png'
+            self.barcode_image_src = './kivy_setting/black.png'
             self.barcode_name = '写真が見つかりません'
-            self.pixel_image_src = 'black.png'
+            self.pixel_image_src = './kivy_setting/black.png'
             self.pixel_name = '写真が見つかりません'
             self.body_number = ''
         
