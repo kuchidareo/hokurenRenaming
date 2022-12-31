@@ -353,3 +353,7 @@ MigrationBackup/
 dist
 build
 _pycache_
+
+# pyenv
+user.pyenv
+
